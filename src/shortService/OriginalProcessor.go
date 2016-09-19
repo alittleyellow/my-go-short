@@ -23,8 +23,9 @@ func (this *OriginalProcessor) ProcessRequest(method, request_url string, params
 	if method != POST {
 		return errors.New("create short url must be POST the information")
 	}
+
 	original_url, has_original_url := params[ORIGINAL_URL]
-	fmt.Println(original_url);
+
 	if !has_original_url {
 		return errors.New("Post info errors")
 	}
@@ -42,6 +43,7 @@ func (this *OriginalProcessor) ProcessRequest(method, request_url string, params
 	if err != nil {
 		return err 
 	}
+
 	header := w.Header()
 	header.Add("Content-Type", "application/json")
 	header.Add("charset", "UTF-8")
@@ -64,6 +66,7 @@ func (this *OriginalProcessor) createUrl(original_url string) (string, error) {
 		return "", err
 	}
 	this.Lru.SetUrl(original_url, short_url)
+	
 	return short_url, nil
 }
 

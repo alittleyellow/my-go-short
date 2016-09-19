@@ -27,12 +27,12 @@ func (this *Configure) ParseConfigure(fileName string) error {
 	cfg, err := config.ReadDefault(fileName);
 
 	if err != nil {
-		fmt.Println("Error:", err)
 		return err
 	}
 	this.loopConfigure("server", cfg)
 	this.loopConfigure("service", cfg)
 	this.loopConfigure("redis", cfg)
+	
 	return nil
 }
 

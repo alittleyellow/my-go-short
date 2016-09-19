@@ -8,7 +8,7 @@ import(
 
 //channel类
 type CountChannl struct {
-	Ok int64
+	Count int64
 	CountOutChan chan int64
 }
 

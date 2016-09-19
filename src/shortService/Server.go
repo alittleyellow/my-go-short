@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var configFile string
-	flag.StringVar(&configFile, "conf", "config.ini", "configure file full path")
+	flag.StringVar(&configFile, "conf", "./config.ini", "configure file full path")
 	flag.Parse()
 
 	//读取配置文件
@@ -36,7 +36,9 @@ func main() {
 	//不使用redis的情况
 	count_channl := make(chan shortlib.CountChannl, 1000)
 	go CountThread(count_channl)
-	countfunction := shortlib.CreateCounter(configure.GetCounterType(), count_channl, redis_cli)
+	count_type := configure.GetCounterType()
+
+	countfunction := shortlib.CreateCounter(count_type, count_channl, redis_cli)
 
 	//启动LRU缓存
 	fmt.Printf("[INFO] Start LRU Cache System...\n")
@@ -65,7 +67,6 @@ func main() {
 	fmt.Printf("[INFO]Service Starting addr :%v,port :%v\n", addr, port)
 	err = http.ListenAndServe(addr, router)
 	if err != nil {
-		//logger.Error("Server start fail: %v", err)
 		os.Exit(1)
 	}
 }

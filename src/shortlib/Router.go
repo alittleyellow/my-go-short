@@ -23,7 +23,7 @@ const (
 func (this *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := TimeNow()
 	request_url := r.RequestURI[1:]
-	action, err := this.ParseUrl(request_url);
+	action, err := this.ParseUrl(request_url)
 	if err != nil {
 		fmt.Printf("[ERROR]parse url fail : %v \n", err)
 	}
@@ -44,6 +44,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		action = 1
 	}
+	
 	processor, _ := this.Processors[action]
 	err = processor.ProcessRequest(r.Method, request_url, params, body, w, r)
 	if err != nil {
@@ -67,7 +68,7 @@ func (this *Router) ParseUrl(url string) (action int, err error) {
 }
 
 func (this *Router) isShortUrl(url string) bool {
-	short_url_pattern := "XXXX"
+	short_url_pattern := "gotest.qima-inc.com/*"
 	url_reg_exp, err := regexp.Compile(short_url_pattern)
 	if err != nil {
 		return false
@@ -79,15 +80,3 @@ func (this *Router) isShortUrl(url string) bool {
 
 	return true
 }
-
-
-
-
-
-
-
-
-
-
-
-
