@@ -22,7 +22,7 @@ func IsNormalUrl(url string) bool {
 	return true
 }
 
-func TransNumToString(num int64) {
+func TransNumToString(num int64) (string, error){
 	startTime := time.Now()
 	var base int64 
 	base = 62
@@ -33,9 +33,8 @@ func TransNumToString(num int64) {
 		num = num / base
 	}
 	output_list.PushFront(num % base)
-
 	str := ""
-	for iter := output_list.Front(); iter != nil; iter.Next() {
+	for iter := output_list.Front(); iter != nil; iter = iter.Next() {
 		str = str + string(baseHex[int(iter.Value.(int64))])
 	}
 	DuringTime(startTime, "TransNumToString")
@@ -52,7 +51,7 @@ func TimeNow() time.Time {
 
 func DuringTime(start time.Time, taskName string) {
 	endTime := time.Now();
-	fmt.Printf("[INFO] [ %v ] COST Time %v \n", taskname, endTime.Sub(start))
+	fmt.Printf("[INFO] [ %v ] COST Time %v \n", taskName, endTime.Sub(start))
 }
 
 func IsShortUrl(short_url string) error {

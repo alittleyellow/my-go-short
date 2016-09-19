@@ -5,7 +5,7 @@ import(
 	"io"
 	"io/ioutil"
 	"net/http"
-	"regexp"
+	"regexp"	
 )
 
 type Router struct {
@@ -20,7 +20,7 @@ const (
 )
 
 //数据分发
-func (this *Router) ServerHttp(w http.ResponseWriter, r *http.Request) {
+func (this *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := TimeNow()
 	request_url := r.RequestURI[1:]
 	action, err := this.ParseUrl(request_url);
@@ -32,7 +32,7 @@ func (this *Router) ServerHttp(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 	params := make(map[string]string)
-	for k, v := range r.From {
+	for k, v := range r.Form {
 		params[k] = v[0]
 	}
 	body, err := ioutil.ReadAll(r.Body)
@@ -44,7 +44,18 @@ func (this *Router) ServerHttp(w http.ResponseWriter, r *http.Request) {
 	} else {
 		action = 1
 	}
-
+	processor, _ := this.Processors[action]
+	err = processor.ProcessRequest(r.Method, request_url, params, body, w, r)
+	if err != nil {
+		fmt.Printf("[ERROR] : %v\n", err)
+	}
+	if action == 0 {
+		DuringTime(start, "REDIRECT URL")
+	} else {
+		DuringTime(start, "CREATE SHORT_URL")
+	}
+	
+	return 
 }
 
 func (this *Router) ParseUrl(url string) (action int, err error) {

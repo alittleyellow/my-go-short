@@ -19,7 +19,7 @@ type LRU struct {
 
 func NewLRU(redis_cli *RedisAdaptor) (*LRU, error) {
 	lru := &LRU{make(map[string]*list.Element), make(map[string]*list.Element), list.New(), redis_cli}
-	return lru, error
+	return lru, nil
 }
 
 func (this *LRU) GetOriginalUrl(short_url string) (string, error) {
@@ -39,7 +39,7 @@ func (this *LRU) GetOriginalUrl(short_url string) (string, error) {
 	this.ListUrl.MoveToFront(element)
 	ele, _ := element.Value.(UrlElement)
 
-	return ele.Original;
+	return ele.Original, nil;
 }
 
 func (this *LRU) GetShortUrl(original_url string) (string, error) {

@@ -4,6 +4,8 @@ import (
 	"shortlib"
 	"fmt"
 	"flag"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -24,12 +26,46 @@ func main() {
 		fmt.Printf("[ERROR] Redis init fail..\n")
 		return
 	}
-	redis_cli.SetUrl("https://kdt.im/W7CBgr", "https://wap.koudaitong.com/v2/showcase/homepage?alias=edm86aq2")
-
-	original_url, err := redis_cli.GetUrl("https://kdt.im/W7CBgr")
-	if err != nil {
-		fmt.Printf("[ERROR] Parse Configure File Error: %v\n", err)
+	if configure.GetRedisStatus() {
+		err = redis_cli.InitCountService()
+		if err != nil {
+			fmt.Printf("[ERROR] Init Redis key count fail...\n")
+		}
 	}
 
-	fmt.Printf(original_url)
+	//不使用redis的情况
+	count_channl := make(chan shortlib.CountChannl, 1000)
+	go CountThread(count_channl)
+	countfunction := shortlib.CreateCounter(configure.GetCounterType(), count_channl, redis_cli)
+
+	//启动LRU缓存
+	fmt.Printf("[INFO] Start LRU Cache System...\n")
+	lru, err := shortlib.NewLRU(redis_cli)
+	if err != nil {
+		fmt.Printf("[ERROR]LRU init fail...\n")
+	}
+
+	//初始化两个短连接服务
+	fmt.Printf("[INFO] Start Service...\n")
+	baseprocessor := &shortlib.BaseProcessor{redis_cli, configure, configure.GetHostInfo(), lru, countfunction}
+
+	original := &OriginalProcessor{baseprocessor, count_channl}
+	short := &ShortProcessor{baseprocessor}
+
+	//启动http handler
+	router := &shortlib.Router{configure, map[int]shortlib.Processor{
+		0: short,
+		1: original,
+	}}
+
+	//启动服务
+
+	port, _ := configure.GetPort()
+	addr := fmt.Sprintf(":%d", port)
+	fmt.Printf("[INFO]Service Starting addr :%v,port :%v\n", addr, port)
+	err = http.ListenAndServe(addr, router)
+	if err != nil {
+		//logger.Error("Server start fail: %v", err)
+		os.Exit(1)
+	}
 }
