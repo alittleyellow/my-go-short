@@ -6,7 +6,6 @@ import(
 	"io"
 	"net/http"
 	"shortlib"
-	"fmt"
 )
 
 type OriginalProcessor struct {
@@ -66,7 +65,7 @@ func (this *OriginalProcessor) createUrl(original_url string) (string, error) {
 		return "", err
 	}
 	this.Lru.SetUrl(original_url, short_url)
-	
+
 	return short_url, nil
 }
 

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var configFile string
-	flag.StringVar(&configFile, "conf", "./config.ini", "configure file full path")
+	flag.StringVar(&configFile, "conf", "/Users/henry-sun/data/www/my-go-short/config.ini", "configure file full path")
 	flag.Parse()
 
 	//读取配置文件
